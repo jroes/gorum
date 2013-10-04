@@ -6,22 +6,18 @@ import (
 	"net/http"
 )
 
-func handler(w http.ResponseWriter, r *http.Request) {
+func signInHandler(w http.ResponseWriter, r *http.Request) {
 	var userStore models.UserStore
 	userStore = models.NewUserGobStore("users/")
-	user, err := userStore.FindUser("jon@example.com")
+	email := r.FormValue("email")
+	password := r.FormValue("password")
+	user, err := userStore.FindUser(email)
 	if err != nil {
-		fmt.Fprintf(w, "Had trouble finding jon@example.com, attempting creation...\n")
-		user = models.NewUser("jon@example.com", "password1!")
-		err = userStore.SaveUser(*user)
-		if err != nil {
-			fmt.Fprintf(w, "Had trouble creating jon@example.com. Ouch: %v\n", err)
-			return
-		}
+		fmt.Fprintf(w, "Sorry, couldn't find a user with that email address.\n")
+		return
 	}
 
-	fmt.Fprintf(w, "Hello world, %v!\n", user)
-	err = user.HasPassword(r.URL.Path[1:])
+	err = user.HasPassword(password)
 	if err != nil {
 		fmt.Fprintf(w, "Looks like you have the wrong password!\n")
 		return
@@ -29,8 +25,24 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Looks like you have the matching password!\n")
 }
 
+func signUpHandler(w http.ResponseWriter, r *http.Request) {
+	var userStore models.UserStore
+	userStore = models.NewUserGobStore("users/")
+	email := r.FormValue("email")
+	password := r.FormValue("password")
+	user := models.NewUser(email, password)
+	err := userStore.SaveUser(*user)
+	if err != nil {
+		fmt.Fprintf(w, "Had trouble creating %s. Error: %v\n", email, err)
+		return
+	}
+
+	fmt.Fprintf(w, "Your user account has been created!\n")
+}
+
 func main() {
-	fmt.Println("Starting server...")
-	http.HandleFunc("/", handler)
+	http.HandleFunc("/sign_up", signUpHandler)
+	http.HandleFunc("/sign_in", signInHandler)
+	fmt.Println("Listening for requests...")
 	http.ListenAndServe(":8080", nil)
 }
