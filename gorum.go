@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"github.com/jroes/gorum/models"
+	"net/http"
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {

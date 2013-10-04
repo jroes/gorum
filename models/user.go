@@ -1,17 +1,17 @@
 package models
 
 import (
-	"code.google.com/p/go.crypto/bcrypt"
 	"bytes"
-	"io/ioutil"
-	"encoding/gob"
-	"encoding/base64"
+	"code.google.com/p/go.crypto/bcrypt"
 	"crypto/sha1"
+	"encoding/base64"
+	"encoding/gob"
+	"io/ioutil"
 	"os"
 )
 
 type User struct {
-	Email string
+	Email        string
 	PasswordHash []byte
 }
 
@@ -69,7 +69,7 @@ func (store UserGobStore) SaveUser(user User) error {
 	userGobBuf := new(bytes.Buffer)
 	encoder := gob.NewEncoder(userGobBuf)
 	encoder.Encode(user)
-	return ioutil.WriteFile(store.Path + emailSha + ".gob", userGobBuf.Bytes(), 0600)
+	return ioutil.WriteFile(store.Path+emailSha+".gob", userGobBuf.Bytes(), 0600)
 }
 
 func generateHash(str string) string {
