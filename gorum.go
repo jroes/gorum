@@ -7,14 +7,26 @@ import (
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	u := models.NewUser("jon@example.com", "password1!")
-	fmt.Fprintf(w, "Hello world, %v!", u)
-	err := u.HasPassword(r.URL.Path[1:])
+	var userStore models.UserStore
+	userStore = models.NewUserGobStore("users/")
+	user, err := userStore.FindUser("jon@example.com")
 	if err != nil {
-		fmt.Fprintf(w, "Looks like you have the wrong password!")
+		fmt.Fprintf(w, "Had trouble finding jon@example.com, attempting creation...\n")
+		user = models.NewUser("jon@example.com", "password1!")
+		err = userStore.SaveUser(*user)
+		if err != nil {
+			fmt.Fprintf(w, "Had trouble creating jon@example.com. Ouch: %v\n", err)
+			return
+		}
+	}
+
+	fmt.Fprintf(w, "Hello world, %v!\n", user)
+	err = user.HasPassword(r.URL.Path[1:])
+	if err != nil {
+		fmt.Fprintf(w, "Looks like you have the wrong password!\n")
 		return
 	}
-	fmt.Fprintf(w, "Looks like you have the matching password!")
+	fmt.Fprintf(w, "Looks like you have the matching password!\n")
 }
 
 func main() {
