@@ -36,7 +36,6 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintf(w, "Hello world, %v!\n", user)
-
 	err = user.HasPassword(r.URL.Path[1:])
 
 	if err != nil {
@@ -51,7 +50,9 @@ func main() {
 	fmt.Println("Starting server...")
 	http.HandleFunc("/", handler)
 
-	if directory, err := os.Getwd(); nil != err {
+	var err error
+
+	if directory, err = os.Getwd(); nil != err {
 		panic(err)
 	} else if err = http.ListenAndServe(":8080", nil); nil != err {
 		panic(err)

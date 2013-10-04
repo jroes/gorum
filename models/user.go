@@ -6,13 +6,19 @@ import (
 	"crypto/sha1"
 	"encoding/base64"
 	"encoding/gob"
+	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
 )
 
 type User struct {
 	Email        string
 	PasswordHash []byte
+}
+
+func (user *User) String() string {
+	return user.Email
 }
 
 func (user *User) HasPassword(password string) error {
@@ -47,7 +53,9 @@ func NewUserGobStore(path string) *UserGobStore {
 
 func (store UserGobStore) FindUser(email string) (*User, error) {
 	emailSha := generateHash(email)
-	userGob, err := ioutil.ReadFile(store.Path + emailSha + ".gob")
+	filePath := path.Join(store.Path, fmt.Sprintf("%s.gob", emailSha))
+	userGob, err := ioutil.ReadFile(filePath)
+
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +77,8 @@ func (store UserGobStore) SaveUser(user User) error {
 	userGobBuf := new(bytes.Buffer)
 	encoder := gob.NewEncoder(userGobBuf)
 	encoder.Encode(user)
-	return ioutil.WriteFile(store.Path+emailSha+".gob", userGobBuf.Bytes(), 0600)
+	filePath := path.Join(store.Path, fmt.Sprintf("%s.gob", emailSha))
+	return ioutil.WriteFile(filePath, userGobBuf.Bytes(), 0600)
 }
 
 func generateHash(str string) string {
