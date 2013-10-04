@@ -3,6 +3,9 @@ package main
 import (
 	"fmt"
 	"net/http"
+)
+
+import (
 	"github.com/jroes/gorum/models"
 )
 
