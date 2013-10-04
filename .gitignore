@@ -21,3 +21,5 @@ _testmain.go
 
 *.exe
 /gorum
+
+.DS_Store
